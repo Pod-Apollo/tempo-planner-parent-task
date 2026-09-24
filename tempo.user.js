@@ -1,7 +1,9 @@
 // ==UserScript==
 // @name         Tempo Planner — show parent task on cards
 // @namespace    http://tampermonkey.net/
-// @version      2.7.0
+// @version      2.7.1
+// @updateURL    https://raw.githubusercontent.com/Pod-Apollo/tempo-planner-parent-task/refs/heads/main/tempo.user.js
+// @downloadURL  https://raw.githubusercontent.com/Pod-Apollo/tempo-planner-parent-task/refs/heads/main/tempo.user.js
 // @description  On the Tempo Capacity planner only, reads each card's issue key, looks up the subtask's parent via the Jira REST API, and injects a clickable parent key + name sized to its container.
 // @author       Yaxche Manrique
 // @match        https://levelaccess-services.atlassian.net/*
