@@ -12,8 +12,8 @@
 // @grant        GM_openInTab
 // @connect      levelaccess-services.atlassian.net
 // @connect      atlassian.net
-// @updateURL    https://raw.githubusercontent.com/ali-levelaccess/capacity-planner-tampermonkey/main/capacity-planner-parent-display.js
-// @downloadURL  https://raw.githubusercontent.com/ali-levelaccess/capacity-planner-tampermonkey/main/capacity-planner-parent-display.js
+// @updateURL    https://raw.githubusercontent.com/Pod-Apollo/tempo-planner-parent-task/refs/heads/main/tempo.user.js
+// @downloadURL  https://raw.githubusercontent.com/Pod-Apollo/tempo-planner-parent-task/refs/heads/main/tempo.user.js
 // ==/UserScript==
 
 (function () {
