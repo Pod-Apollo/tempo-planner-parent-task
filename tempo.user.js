@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Tempo Capacity Planner Parent Display - Merged
+// @name         Tempo Capacity Planner Parent Display
 // @namespace    capacity-planner-parent-display
 // @version      2.7.2
 // @description  Displays responsive Jira parent links and cleaned parent summaries on Tempo Planner cards across days and list views.
