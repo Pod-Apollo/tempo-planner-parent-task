@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Tempo Capacity Planner Parent Display
 // @namespace    capacity-planner-parent-display
-// @version      2.7.2
-// @description  Displays responsive Jira parent links and cleaned parent summaries on Tempo Planner cards across days and list views.
-// @author       Ali Zimmerman / Yaxche Manrique
+// @version      2.7.3
+// @description  Displays responsive Jira parent links and cleaned parent summaries on Tempo Planner cards across days, weeks, and list views in both light and dark modes.
+// @author       Yaxche Manrique / Ali Zimmerman
 // @match        https://levelaccess-services.atlassian.net/*
 // @match        https://*.atlassian-dev.net/*
 // @match        https://*.tempo.io/*
