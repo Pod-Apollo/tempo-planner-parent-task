@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Tempo Capacity Planner Parent Display
 // @namespace    capacity-planner-parent-display
-// @version      2.7.3
+// @version      3.0.0
 // @description  Displays responsive Jira parent links and cleaned parent summaries on Tempo Planner cards across days, weeks, and list views in both light and dark modes.
 // @author       Yaxche Manrique / Ali Zimmerman
 // @match        https://levelaccess-services.atlassian.net/*
@@ -276,13 +276,27 @@
                 letter-spacing: .01em;
             }
             .${BADGE_CLASS}.az-cell {
-                margin: 3px 0 0 0;
+                display: block;
+                margin: 4px 0 6px 0;
+                padding: 2px 0 7px 0;
                 font-size: 10.5px;
-                line-height: 1.35;
-            }
+                line-height: 1.3;
+                width: 100%;
+                max-width: 100%;
+                overflow: hidden;
+                border-bottom: 1px solid var(--az-parent-border, rgba(255, 255, 255, 0.28));
+             }
             .${BADGE_CLASS} .az-label {
                 color: var(--az-parent-text, #FFFFFF);
                 font-weight: 600;
+            }
+            .${BADGE_CLASS}.az-cell .az-label {
+                display: inline;
+                margin-right: 3px;
+            }
+
+           .${BADGE_CLASS}.az-cell a {
+                display: inline;
             }
             .${BADGE_CLASS} a {
                 color: var(--az-parent-link, #5CD5FF);
@@ -307,6 +321,13 @@
             .${BADGE_CLASS}.az-compact a {
                 font-size: 10px;
             }
+            .${BADGE_CLASS}.az-cell .az-summary {
+                display: block;
+                margin-top: 1px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+           }
         `;
         (document.head || document.documentElement).appendChild(style);
     }
@@ -352,6 +373,7 @@
 
         badge.style.setProperty('--az-parent-text', lightSurface ? '#172B4D' : '#FFFFFF');
         badge.style.setProperty('--az-parent-link', lightSurface ? '#0052CC' : '#5CD5FF');
+        badge.style.setProperty('--az-parent-border', lightSurface ? 'rgba(9, 30, 66, 0.28)' : 'rgba(255, 255, 255, 0.28)');
     }
 
     function escapeRegExp(value) {
@@ -420,18 +442,43 @@
         return null;
     }
 
+    function getWeeksTitleHost(card) {
+    let node = card;
+
+    while (node && node !== document.body) {
+        if (node.querySelector) {
+            const titleCell = node.querySelector('.td[data-index="0"]');
+
+            if (titleCell) {
+                return (
+                    titleCell.querySelector('[data-testid^="user-column-"]') ||
+                    titleCell
+                );
+            }
+        }
+
+        node = node.parentElement;
+    }
+
+    return null;
+}
+
     function renderBadge(card, row, parentInfo, mode, keyElement) {
         if (!parentInfo || card.querySelector('.' + BADGE_CLASS)) {
             return;
         }
 
         const title = mode === 'eyebrow' ? getTitleLeaf(card, keyElement) : null;
-        const box = title && title.parentElement ? title.parentElement : card;
+        const weeksTitleHost = mode === 'cell' ? getWeeksTitleHost(card) : null;
+
+        const box = weeksTitleHost ||
+        (title && title.parentElement ? title.parentElement : card);
+
         const width = innerWidth(box);
         const minimumWidth = mode === 'eyebrow' ? MIN_INLINE_WIDTH : MIN_CELL_WIDTH;
 
         if (width < minimumWidth) {
-            return;
+           return;
         }
 
         injectStyles();
@@ -457,20 +504,28 @@
         link.title = parentInfo.summary || parentInfo.key;
 
         ['mousedown', 'pointerdown', 'dragstart'].forEach((eventName) => {
-            link.addEventListener(eventName, (event) => event.stopPropagation());
+         link.addEventListener(eventName, (event) => {
+        event.stopPropagation();
         });
+    });
 
-        link.addEventListener('click', (event) => {
-            event.stopPropagation();
-            event.preventDefault();
-            const url = `${JIRA}/browse/${parentInfo.key}`;
-            if (typeof GM_openInTab === 'function') {
-                GM_openInTab(url, { active: true, insert: true });
-            } else {
-                window.open(url, '_blank', 'noopener');
-            }
+    link.addEventListener('click', (event) => {
+    event.stopPropagation();
+    event.preventDefault();
+
+    const url = `${JIRA}/browse/${parentInfo.key}`;
+
+    if (typeof GM_openInTab === 'function') {
+        GM_openInTab(url, {
+            active: true,
+            insert: true
         });
-        badge.appendChild(link);
+    } else {
+        window.open(url, '_blank', 'noopener');
+    }
+});
+
+badge.appendChild(link);
 
         // Keep the parent link first so it is clearly associated with the
         // parent summary below, rather than with the subtask title that follows.
@@ -500,7 +555,9 @@
             box.style.flexWrap = 'wrap';
         }
 
-        if (title) {
+        if (mode === 'cell' && weeksTitleHost) {
+            weeksTitleHost.appendChild(badge);
+        } else if (title) {
             box.insertBefore(badge, title);
         } else if (mode === 'eyebrow') {
             card.insertBefore(badge, card.firstChild);
@@ -552,17 +609,6 @@
                     mode: 'cell',
                     row: planKey
                 };
-            }
-
-            // The Work Items rail still uses full-size draggable cards in Weeks
-            // view. Support those as normal cards, while rejecting the narrow
-            // timeline chips in the grid.
-            const railCard = element.closest(CARD_SELECTOR);
-            if (railCard) {
-                const width = railCard.getBoundingClientRect().width;
-                if (width >= MIN_INLINE_WIDTH && width <= 500) {
-                    return { card: railCard, mode: 'eyebrow', row: null };
-                }
             }
 
             return NOWHERE;
